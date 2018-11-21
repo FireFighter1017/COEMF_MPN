@@ -1,9 +1,9 @@
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/lubripack.r")
-source("./scripts/mm_readCleanUtopia.r")
-source("./scripts/mm_readCleanSPF.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/normVendor.r")
-source("./scripts/UtopiaStats.r")
-source("./scripts/mm_matchToZ011.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanUtopia.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanSPF.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/UtopiaStats.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_matchToZ011.r")
 
 ## Read Utopia Data
 Utopia <- readCleanUtopia()
@@ -75,6 +75,9 @@ SAPMatStats(SAP, mpnToSAP)
 
 ## Select records which had no MPN information
 mpnLoad <- SAP[MPNIsMissing & !is.na(SAP$Manufacturer),c("Material","Manufacturer","Mfr Part Number")]
-write_csv(mpnLoad, "~/Analytics/DataCleansing/MPN_LOAD_2.CSV")
+
+# Uncomment this line if a new MPN load file needs to be generated from this
+#### write_csv(mpnLoad, "~/Analytics/DataCleansing/MPN_LOAD_2.CSV")
+
 
 
