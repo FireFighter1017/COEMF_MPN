@@ -5,7 +5,7 @@ matchToZ011 <- function(x){
   matchingVendor <- function(v1){
     library(readr)
     library(dplyr)
-    source("./scripts/normVendor.r")
+    source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
     ## Load Z011 suppliers dataset
     Z011 <- read_csv("./srcData/Z011_VENDORS.csv",
                      col_names= c("NAME",
