@@ -7,6 +7,8 @@ normVendor <- function(VENDOR){
     # Remove carriage returns
   VENDOR <- gsub("\\n", "", VENDOR)
   VENDOR[VENDOR=="TB"] <- "THOMAS & BETTS"
+  VENDOR[VENDOR=="SKF CANADA"] <- "SKF"
+  VENDOR[grep("^REGAL BELOIT", VENDOR)] <- "REGAL BELOIT"
   return(VENDOR)
 }
 
