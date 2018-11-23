@@ -6,6 +6,8 @@ normVendor <- function(VENDOR){
   VENDOR <- gsub("[^a-zA-Z[:space:][:digit:]]", "", VENDOR)
     # Remove carriage returns
   VENDOR <- gsub("\\n", "", VENDOR)
+    # Remove invalid entries
+  VENDOR[VENDOR==0] = NA
   VENDOR[VENDOR=="TB"] <- "THOMAS & BETTS"
   VENDOR[VENDOR=="SKF CANADA"] <- "SKF"
   VENDOR[grep("^REGAL BELOIT", VENDOR)] <- "REGAL BELOIT"
@@ -28,5 +30,7 @@ normParts <- function(PART){
   PART <- gsub("[:space:]", "", PART)
     # Remove carriage returns
   PART <- gsub("\\n", "", PART)
+    # Remove invalid entries
+  PART[PART==0] = NA
   return(PART)
 }
