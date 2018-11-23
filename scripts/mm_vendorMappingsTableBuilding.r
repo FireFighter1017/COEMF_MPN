@@ -1,30 +1,46 @@
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanUtopia.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanSPF.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/UtopiaStats.r")
-source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_matchToZ011.r")
+lubripack("readr", "dplyr", "tidyr", "stringdist", "foreach")
 
 # Read SAP Data with MPN matches
-source("https://github.com/FireFighter1017/COEMF_MPN/blob/master/scripts/mm_mpn_determination.r")
+SAP <- read_csv("./cache/SAP_MAT_MPN.csv")
 
 ## From the SAP object, create a list of mappings from possible vendors 
 ## to Z011 vendors from past matches.
 
 # Make a table for Utopia Manufacturer/vendor
 UtopiaMV <- SAP[!is.na(SAP$`MANUFACTURER/VENDOR`) & !is.na(SAP$Manufacturer),
-                c("Manufacturer", "MANUFACTURER/VENDOR")]
-colnames <- c("Z011VendorName", "VendorNames")
+                c("Manufacturer", "Z011.NAME", "MANUFACTURER/VENDOR")]
+colnames(UtopiaMV) <- c("Z011VendorNo", "Z011VendorName", "VendorNames")
 
 # Make a table for Utopia Brands
 UtopiaBrand <- SAP[!is.na(SAP$`BRAND`) & !is.na(SAP$Manufacturer),
-                c("Manufacturer", "BRAND")]
-colnames <- c("Z011VendorName", "VendorNames")
+                c("Manufacturer", "Z011.NAME", "BRAND")]
+colnames(UtopiaBrand) <- c("Z011VendorNo", "Z011VendorName", "VendorNames")
 
 # Make a table for SPF vendor
 SPFVendors <- SAP[!is.na(SAP$`VENDOR`) & !is.na(SAP$Manufacturer),
-                c("Manufacturer", "VENDOR")]
-colnames <- c("Z011VendorName", "VendorNames")
+                c("Manufacturer", "Z011.NAME", "VENDOR")]
+colnames(SPFVendors) <- c("Z011VendorNo", "Z011VendorName", "VendorNames")
 
 # Add all tables together and compile frequencies
-mapFreq <- rbind(UtopiaMV, UtopiaBrand, SPFVendors)
+mappings <- rbind(UtopiaMV, UtopiaBrand, SPFVendors)
+
+# Compile weights of entries based on string distance calculated using osa
+# (osa = Optimal string alignment, i.e. restricted Damerau-Levenshtein)
+
+weight <- unlist(foreach(i=1:nrow(mappings)) %dopar%
+                   unlist(stringdist(mappings$Z011VendorName[i], 
+                                mappings$VendorNames[i])
+                          )
+                 )
+mappings$exactMatch <- if_else(weight == 0, TRUE, FALSE)
+
+mapFreq <- group_by(mappings, Z011VendorNo, Z011VendorName, VendorNames)
+mapFreq <- summarise(mapFreq, n=n())
+mapCount <- group_by(mappings, Z011VendorNo, Z011VendorName)
+mapCount <- summarise(mapCount, N=n())
+mapProb <- inner_join(mapFreq, mapCount)
+mapProb$prob <- mapProb$n/mapProb$N
+
+View(mapProb)
+write_csv(mapProb, "./cache/SAPMpnMappingsFrequency.csv")

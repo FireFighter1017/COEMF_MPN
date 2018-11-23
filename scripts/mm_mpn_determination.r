@@ -75,7 +75,7 @@ SAPMatStats(SAP, mpnToSAP)
 
 ## Select records which had no MPN information
 mpnLoad <- SAP[MPNIsMissing & !is.na(SAP$Manufacturer),c("Material","Manufacturer","Mfr Part Number")]
-
+write_csv(SAP, "./cache/SAP_MAT_MPN.csv")
 # Uncomment this line if a new MPN load file needs to be generated from this
 #### write_csv(mpnLoad, "~/Analytics/DataCleansing/MPN_LOAD_2.CSV")
 
