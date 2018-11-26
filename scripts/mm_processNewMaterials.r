@@ -1,5 +1,6 @@
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
+source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_matchToZ011.r")
 lubripack("readr", "dplyr", "tidyr")
 
 ## Read mappings
@@ -21,12 +22,29 @@ rm(newFile)
 
 # Process each file
 for(filename in files){
+  # execute function that will process the materials and generate the output
   newFile <- read.csv(paste(newDir, filename, sep=""), encoding="UTF-8")
   colnames(newFile)[1] <- "MATNR"
   newFile <- newFile[,c("MATNR", "MAKTX_EN", "MAKTX_FR", "MFRNR", "MFRPN")]
   newFile$normVendors <- normVendor(newFile$MFRNR)
   mappedVendors <- left_join(newFile, mapProb, by=c("normVendors"="VendorNames"))
-  # execute function that will process the materials and generate the output
-  View(unique(mappedVendors$normVendors[is.na(mappedVendors$Z011VendorNo)]))
-  mappedVendors$Z011VendorNo[mappedVendors$MFRNR=="AB" & grep("^1469", mappedVendors$MFRPN)] == 50004
+  
+  ## Filter those that did not find a match
+  unmapd <- mappedVendors[is.na(mappedVendors$Z011VendorNo),]
+  unmapd <- unmapd %>% group_by(MFRNR) %>% summarize(n=n())
+  ## Try to match them using Levenshtein
+  matchResults <- matchToZ011(unmapd$MFRNR)
+  View(cbind(matchResults, unmapd))
+  write_csv(cbind(matchResults, unmapd), 
+            paste("./srcData/complete/unmapped_", 
+                  filename, 
+                  sep="")
+            )
+  
+  write_csv(mappedVendors,
+            paste("./srcData/complete/mapped_",
+                  filename,
+                  sep="")
+            )
+  
 }
