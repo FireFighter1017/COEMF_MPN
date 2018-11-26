@@ -28,19 +28,22 @@ mappings <- rbind(UtopiaMV, UtopiaBrand, SPFVendors)
 # Compile weights of entries based on string distance calculated using osa
 # (osa = Optimal string alignment, i.e. restricted Damerau-Levenshtein)
 
-weight <- unlist(foreach(i=1:nrow(mappings)) %dopar%
+osaDist <- unlist(foreach(i=1:nrow(mappings)) %dopar%
                    unlist(stringdist(mappings$Z011VendorName[i], 
                                 mappings$VendorNames[i])
                           )
                  )
-mappings$exactMatch <- if_else(weight == 0, TRUE, FALSE)
+
+mappings$dist <- if_else(osaDist>0, 1/osaDist, 1)
+
 
 mapFreq <- group_by(mappings, Z011VendorNo, Z011VendorName, VendorNames)
-mapFreq <- summarise(mapFreq, n=n())
+mapFreq <- summarise(mapFreq, n=n(), weight=mean(dist))
 mapCount <- group_by(mappings, Z011VendorNo, Z011VendorName)
 mapCount <- summarise(mapCount, N=n())
 mapProb <- inner_join(mapFreq, mapCount)
 mapProb$prob <- mapProb$n/mapProb$N
+mapProb$weightedScore <- mapProb$prob * mapProb$weight
 
 View(mapProb)
 write_csv(mapProb, "./cache/SAPMpnMappingsFrequency.csv")
