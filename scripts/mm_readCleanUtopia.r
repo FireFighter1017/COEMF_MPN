@@ -13,7 +13,7 @@ readCleanUtopia <- function(){
   # Normalize vendor name columns
   Utopia$`MANUFACTURER/VENDOR` = normVendor(Utopia$`MANUFACTURER/VENDOR`)
   Utopia$FinalVendorName = normVendor(Utopia$FinalVendorName)
-  
+  Utopia$PART_NUMBER = normParts(Utopia$PART_NUMBER)
   # Split Vendor name on spaces
   Utopia <- separate(data = Utopia,
                   col = `MANUFACTURER/VENDOR`, 
