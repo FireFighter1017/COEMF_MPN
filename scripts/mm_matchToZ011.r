@@ -1,11 +1,11 @@
 matchToZ011 <- function(x){
-  lubripack("parallel", "stringdist")
+  lubripack("readr","dplyr","parallel", "stringdist")
   
   # Function to find closest match
   matchingVendor <- function(v1){
-    library(readr)
-    library(dplyr)
+    source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
     source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
+    lubripack("readr","dplyr","parallel")
     ## Load Z011 suppliers dataset
     Z011 <- read_csv("./srcData/Z011_VENDORS.csv", 
                      skip=1,
@@ -15,7 +15,7 @@ matchToZ011 <- function(x){
     Z011$RawName <- Z011$NAME
     Z011$NAME <- normVendor(Z011$NAME)
     results <- Z011[agrep(toupper(v1), toupper(Z011$NAME)), c("VENDOR","NAME")]
-    results$dist <- as.numeric(t(stringdist(v1, results$NAME)))
+    results$dist <- as.numeric(t(adist(v1, results$NAME)))
     arrange(results, dist)[1,]
   }
   
