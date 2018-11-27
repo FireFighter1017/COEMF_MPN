@@ -15,7 +15,7 @@ matchToZ011 <- function(x){
     Z011$RawName <- Z011$NAME
     Z011$NAME <- normVendor(Z011$NAME)
     results <- Z011[agrep(toupper(v1), toupper(Z011$NAME)), c("VENDOR","NAME")]
-    results$dist <- as.numeric(t(adist(v1, results$NAME)))
+    results$dist <- as.numeric(t(stringdist(v1, results$NAME)))
     arrange(results, dist)[1,]
   }
   
@@ -28,5 +28,9 @@ matchToZ011 <- function(x){
   matchResults$VENDOR <- unlist(matchResults$VENDOR)
   matchResults$NAME <- unlist(matchResults$NAME)
   matchResults$dist <- unlist(matchResults$dist)
+  
+  
   return(matchResults)
 }
+
+

@@ -1,7 +1,7 @@
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/MasterData/funcs/normVendor.r")
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_matchToZ011.r")
-lubripack("readr", "dplyr", "tidyr")
+lubripack("readr", "dplyr", "tidyr", "stringdist")
 
 ## Read mappings
 mapProb <- read.csv("./cache/SAPMpnMappingsFrequency.csv",
@@ -30,17 +30,20 @@ for(filename in files){
   mappedVendors <- left_join(newFile, mapProb, by=c("normVendors"="VendorNames"))
   
   ## Filter those that did not find a match
-  unmapd <- mappedVendors[is.na(mappedVendors$Z011VendorNo),]
-  unmapd <- unmapd %>% group_by(MFRNR) %>% summarize(n=n())
-  ## Try to match them using Levenshtein
-  matchResults <- matchToZ011(unmapd$MFRNR)
-  View(cbind(matchResults, unmapd))
-  write_csv(cbind(matchResults, unmapd), 
-            paste("./srcData/complete/unmapped_", 
-                  filename, 
-                  sep="")
-            )
+  if(sum(is.na(mappedVendors$Z011VendorNo)) > 0){
+    unmapd <- mappedVendors[is.na(mappedVendors$Z011VendorNo),]
+    unmapd <- unmapd %>% group_by(MFRNR) %>% summarize(n=n())
+    ## Try to match them using Levenshtein
+    matchResults <- matchToZ011(unmapd$MFRNR)
+    View(cbind(matchResults, unmapd))
+    write_csv(cbind(matchResults, unmapd), 
+              paste("./srcData/complete/unmapped_", 
+                    filename, 
+                    sep="")
+              )
+  }
   
+  ## Write those of which a match was found
   write_csv(mappedVendors,
             paste("./srcData/complete/mapped_",
                   filename,
@@ -48,3 +51,8 @@ for(filename in files){
             )
   
 }
+
+unMapped <- rbind(read_csv("srcData/complete/unmapped_Copy of 08_SPARE_PARTS_1715_V682.csv"),
+                  read_csv("srcData/complete/unmapped_Copy of 08_SPARE_PARTS_2771_V651.csv")
+)
+dist <- stringdist(unMapped$MFRNR, mapProb, method='jw')
