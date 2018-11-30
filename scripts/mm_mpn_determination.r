@@ -1,3 +1,9 @@
+#####################################################################
+#
+# Find best possible match between Utopia's extracted values,
+# our internal list of MPN and Z011 Vendors.
+#
+
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanUtopia.r")
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF_MPN/master/scripts/mm_readCleanSPF.r")

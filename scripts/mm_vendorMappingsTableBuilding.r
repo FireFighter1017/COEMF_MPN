@@ -1,3 +1,8 @@
+#################################################################
+#
+# Build a prediction model for vendor names and numbers
+#
+
 source("https://raw.githubusercontent.com/FireFighter1017/COEMF/master/funcs/lubripack.r")
 lubripack("readr", "dplyr", "tidyr", "stringdist", "foreach")
 
