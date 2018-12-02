@@ -35,7 +35,7 @@ readCleanSPF <- function(){
   SPF <- SPF[!is.na(SPF$`SAP#`),]
   
   ## Remove entries which has missing vendor information
-  NAs <- nrow(is.na(SPF$VENDOR))
+  NAs <- sum(as.numeric(is.na(SPF$VENDOR)))
   print(paste(NAs,
               " SPF records without Mfr name",
               sep="")
