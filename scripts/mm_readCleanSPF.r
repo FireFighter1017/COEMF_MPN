@@ -25,10 +25,27 @@ readCleanSPF <- function(){
   rm(dupe90017833)
   
   ## remove entries which have no SAP#
+  NAs <- nrow(SPF[SPF$`SAP#` == "#N/A",])
+  NAs <- NAs + nrow(SPF[is.na(SPF$`SAP#`),])
+  print(paste(NAs,
+              " SPF records without SAP#",
+              sep="")
+        )
   SPF <- SPF[!SPF$`SAP#` == "#N/A",]
   SPF <- SPF[!is.na(SPF$`SAP#`),]
+  
   ## Remove entries which has missing vendor information
+  NAs <- nrow(is.na(SPF$VENDOR))
+  print(paste(NAs,
+              " SPF records without Mfr name",
+              sep="")
+  )
   SPF <- SPF[!is.na(SPF$VENDOR),]
+  NAs <- sum(as.numeric(is.na(SPF$VENDOR)))
+  print(paste(NAs,
+              " SPF records without Mfr part#",
+              sep="")
+  )
   SPF <- SPF[!is.na(SPF$`VENDOR PART #`),]
   
   ## Normalize Vendor name columns
