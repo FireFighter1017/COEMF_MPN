@@ -14,7 +14,7 @@ UtopiaStats <- function(x){
               )
         )
   print(paste("Number of missing values in Utopia's FinalVendorName: ",
-              nrow(x[is.na(x$FinalVendorName),]),
+              sum(as.numeric(is.na(x$FinalVendorName))),
               sep=""
               )
         )
